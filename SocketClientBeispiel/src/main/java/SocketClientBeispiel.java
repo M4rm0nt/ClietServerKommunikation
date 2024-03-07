@@ -1,12 +1,17 @@
 import java.io.*;
 import java.net.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SocketClientBeispiel {
-    public static void main(String[] args) {
-        String hostname = "localhost";
-        int port = 1234;
+    private static final String HOSTNAME = "localhost";
+    private static final int PORT = 1234;
+    private static final Logger logger = LogManager.getLogger(SocketClientBeispiel.class);
 
-        try (Socket socket = new Socket(hostname, port);
+    public static void main(String[] args) {
+        logger.info("Verbindung zum Server {} auf Port {}", HOSTNAME, PORT);
+
+        try (Socket socket = new Socket(HOSTNAME, PORT);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))) {
@@ -14,14 +19,13 @@ public class SocketClientBeispiel {
             String userInput;
             while ((userInput = stdIn.readLine()) != null) {
                 out.println(userInput);
-                System.out.println("Echo vom Server: " + in.readLine());
+                logger.info("Echo vom Server: {}", in.readLine());
             }
         } catch (UnknownHostException e) {
-            System.err.println("Host unbekannt: " + hostname);
+            logger.error("Host unbekannt: {}", HOSTNAME, e);
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("I/O Fehler beim Verbinden zum Server " + hostname);
-            e.printStackTrace();
+            logger.error("I/O Fehler beim Verbinden zum Server {}: {}", HOSTNAME, e.getMessage(), e);
             System.exit(1);
         }
     }
